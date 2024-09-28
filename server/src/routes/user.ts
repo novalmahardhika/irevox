@@ -25,6 +25,7 @@ router.get(
 router.post(
   '/',
   authMiddleware.authorize,
+  authMiddleware.isAdmin,
   userValidation.checkUserPayload,
   userMiddleware.checkRoleId,
   userController.createUser
@@ -33,6 +34,7 @@ router.post(
 router.put(
   '/:id',
   authMiddleware.authorize,
+  authMiddleware.isAdmin,
   commonValidation.checkUUID,
   userValidation.checkUpdateUserPayload,
   userMiddleware.checkUserExist,
@@ -43,6 +45,7 @@ router.put(
 router.delete(
   '/:id',
   authMiddleware.authorize,
+  authMiddleware.isAdmin,
   commonValidation.checkUUID,
   userMiddleware.checkUserExist,
   userController.deleteUser

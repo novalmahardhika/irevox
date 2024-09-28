@@ -4,6 +4,7 @@ import * as authService from '../services/auth'
 import { ApplicationError } from '../utils/error'
 import { User } from '@prisma/client'
 import { PayloadUserType } from '../middlewares/validations/user'
+import { UserWithRole } from '../middlewares/auth'
 
 export async function getListUser(req: Request, res: Response) {
   try {
@@ -79,7 +80,7 @@ export async function createUser(
 
 export async function updateUser(
   req: Request<{ id: string }, unknown, PayloadUserType>,
-  res: Response<unknown, { user: User }>
+  res: Response<unknown, { user: User; auth: UserWithRole }>
 ) {
   const { id } = req.params
   const body = req.body

@@ -25,7 +25,7 @@ export async function authorize(
     const token = authHeader && authHeader.split(' ')[1]
 
     if (!token) {
-      res.status(401).json({ message: 'Missing token header' })
+      res.status(401).json({ message: 'Unauthorized' })
       return
     }
 
@@ -57,10 +57,8 @@ export function isAdmin(
 ) {
   const { name } = res.locals.auth.role
 
-  console.log(name)
-
   if (name !== 'ADMIN') {
-    res.status(403).json({ message: 'Forbidden' })
+    res.status(403).json({ message: 'Only admin can access this route' })
     return
   }
 
