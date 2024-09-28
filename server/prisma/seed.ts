@@ -46,6 +46,7 @@ async function seederAdmin() {
         create: {
           name: user.name,
           email: user.email,
+          password: 'admin12345',
           role: {
             connect: {
               name: 'ADMIN',
@@ -62,7 +63,7 @@ async function seederAdmin() {
 async function seederUser() {
   const users = []
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 10; i++) {
     users.push({
       name: faker.person.fullName(),
       email: faker.internet.email(),
@@ -79,6 +80,7 @@ async function seederUser() {
         create: {
           name: user.name,
           email: user.email,
+          password: 'user12345',
           role: {
             connect: {
               name: 'USER',

@@ -15,6 +15,7 @@ model User {
   name  String
   email String  @unique
   phoneNumber String?
+  password String
 
   roleId String
   role  Role @relation(fields: [roleId],references: [id])
