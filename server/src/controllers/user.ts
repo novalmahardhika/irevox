@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import * as userService from '../services/user'
+import * as authService from '../services/auth'
 import { ApplicationError } from '../utils/error'
 import { User } from '@prisma/client'
 import { PayloadUserType } from '../middlewares/validations/user'
@@ -55,7 +56,14 @@ export async function createUser(
       return
     }
 
-    const data = await userService.createUser(body)
+    const encryptedPassword = await authService.generatePassword(body.password)
+
+    const payload = {
+      ...body,
+      password: encryptedPassword,
+    }
+
+    const data = await userService.createUser(payload)
 
     res.status(200).json({ message: 'Created user successfully', data })
   } catch (error) {
@@ -70,7 +78,7 @@ export async function createUser(
 }
 
 export async function updateUser(
-  req: Request<{ id: string }>,
+  req: Request<{ id: string }, unknown, PayloadUserType>,
   res: Response<unknown, { user: User }>
 ) {
   const { id } = req.params
@@ -84,7 +92,19 @@ export async function updateUser(
       return
     }
 
-    const data = await userService.updateUser(id, body)
+    let payload = {
+      ...body,
+    }
+
+    if (body.password) {
+      const encryptedPassword = await authService.generatePassword(
+        body.password
+      )
+
+      payload = { ...body, password: encryptedPassword }
+    }
+
+    const data = await userService.updateUser(id, payload)
 
     res.status(200).json({ message: 'Updated user successfully', data })
   } catch (error) {

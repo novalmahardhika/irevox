@@ -1,4 +1,5 @@
-import { faker } from '@faker-js/faker' // Ensure you're importing faker correctly
+import { faker } from '@faker-js/faker'
+import bcrypt from 'bcrypt'
 import prisma from './db'
 import chalk from 'chalk'
 
@@ -36,6 +37,8 @@ async function seederAdmin() {
     },
   ]
 
+  const encryptPassword = await bcrypt.hash('admin12345', 10)
+
   await Promise.all(
     users.map((user) =>
       prisma.user.upsert({
@@ -46,7 +49,7 @@ async function seederAdmin() {
         create: {
           name: user.name,
           email: user.email,
-          password: 'admin12345',
+          password: encryptPassword,
           role: {
             connect: {
               name: 'ADMIN',
@@ -70,6 +73,8 @@ async function seederUser() {
     })
   }
 
+  const encryptPassword = await bcrypt.hash('user12345', 10)
+
   await Promise.all(
     users.map((user) =>
       prisma.user.upsert({
@@ -80,7 +85,7 @@ async function seederUser() {
         create: {
           name: user.name,
           email: user.email,
-          password: 'user12345',
+          password: encryptPassword,
           role: {
             connect: {
               name: 'USER',

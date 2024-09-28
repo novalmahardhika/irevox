@@ -31,6 +31,7 @@ export function getUserEmail(email: string) {
       name: true,
       email: true,
       phoneNumber: true,
+      password: true,
       role: {
         select: {
           id: true,

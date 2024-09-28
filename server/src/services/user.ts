@@ -50,6 +50,8 @@ export async function updateUser(id: string, payload: PayloadUserType) {
 
     return user
   } catch (error) {
+    console.log(error)
+
     throw new ApplicationError('Internal server error', 500)
   }
 }

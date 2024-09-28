@@ -4,7 +4,7 @@ import { formatZodError } from '../../utils/error'
 
 const userSchema = z.object({
   roleId: z.string().uuid(),
-  name: z.string(),
+  name: z.string().trim(),
   email: z.string().email(),
   password: z.string().min(8),
   phoneNumber: z.string().optional(),
