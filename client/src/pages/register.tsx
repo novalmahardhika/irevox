@@ -11,13 +11,19 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { registerSchema } from '@/lib/schema'
+import { useAuth } from '@/hooks/use-auth'
+import { RegisterSchema, registerSchema } from '@/lib/schema-zod'
+import { URL } from '@/lib/url'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 export function Register() {
+  const { token } = useAuth()
+
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -27,12 +33,43 @@ export function Register() {
     },
   })
 
+  const mutation = useMutation({
+    mutationFn: async (credentials: RegisterSchema) => {
+      const response = await fetch(`${URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      })
+
+      if (!response.ok) {
+        throw new Error('Register failed')
+      }
+
+      const data = await response.json()
+
+      return data.data
+    },
+    onSuccess: () => {
+      toast.success('Register successfully')
+    },
+
+    onError: (err) => {
+      toast.error(err.message)
+    },
+  })
+
   const onSubmit = (values: z.infer<typeof registerSchema>) => {
-    console.log(values)
+    mutation.mutate(values)
+  }
+
+  if (token) {
+    return <Navigate to='/' />
   }
 
   return (
-    <section className='h-screen flex justify-center items-center px-4'>
+    <section className='flex items-center justify-center h-screen px-4'>
       <CardWrapper title='Login' description='lorem ipsum dolor sit amet'>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-2'>
@@ -98,7 +135,11 @@ export function Register() {
               </Link>
             </CardDescription>
 
-            <Button type='submit' className='w-full'>
+            <Button
+              type='submit'
+              className='w-full'
+              disabled={mutation.isPending}
+            >
               Submit
             </Button>
           </form>

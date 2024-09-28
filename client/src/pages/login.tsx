@@ -11,13 +11,19 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { loginSchema } from '@/lib/schema'
+import { useAuth } from '@/hooks/use-auth'
+import { LoginSchema, loginSchema } from '@/lib/schema-zod'
+import { URL } from '@/lib/url'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 export function Login() {
+  const { login, token } = useAuth()
+
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -26,12 +32,43 @@ export function Login() {
     },
   })
 
+  const mutation = useMutation({
+    mutationFn: async (credentials: LoginSchema) => {
+      const response = await fetch(`${URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      })
+
+      if (!response.ok) {
+        throw new Error('Login failed')
+      }
+
+      const data = await response.json()
+
+      return data
+    },
+    onSuccess: (data) => {
+      login(data.data.token)
+      toast.success('Login successfully')
+    },
+    onError: (err) => {
+      toast.error(err.message)
+    },
+  })
+
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    console.log(values)
+    mutation.mutate(values)
+  }
+
+  if (token) {
+    return <Navigate to='/' />
   }
 
   return (
-    <section className='h-screen flex justify-center items-center px-4'>
+    <section className='flex items-center justify-center h-screen px-4'>
       <CardWrapper title='Login' description='lorem ipsum dolor sit amet'>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-4'>
@@ -76,11 +113,15 @@ export function Login() {
 
             <CardDescription>
               <Link to='/register' className='hover:text-white'>
-                Doesnt have an account ?
+                Dont have an account ?
               </Link>
             </CardDescription>
 
-            <Button type='submit' className='w-full'>
+            <Button
+              type='submit'
+              className='w-full'
+              disabled={mutation.isPending}
+            >
               Submit
             </Button>
           </form>

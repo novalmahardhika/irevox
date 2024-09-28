@@ -13,7 +13,7 @@ export default function App() {
         <Route path='/register' element={<Register />} />
         <Route path='/' element={<ProtectedLayout />}>
           <Route index element={<Account />} />
-          <Route path='/admin' element={<Admin />} />
+          <Route path='admin' element={<Admin />} />
         </Route>
       </Routes>
     </Router>

@@ -5,11 +5,15 @@ export const loginSchema = z.object({
   password: z.string().trim().min(8),
 })
 
+export type LoginSchema = z.infer<typeof loginSchema>
+
 export const registerSchema = z.object({
   name: z.string().trim().min(3),
   email: z.string().email(),
   password: z.string().trim().min(8),
 })
+
+export type RegisterSchema = z.infer<typeof registerSchema>
 
 export const userSchema = z.object({
   name: z.string().trim().min(3),
@@ -22,7 +26,7 @@ export const userSchema = z.object({
 export const userUpdateSchema = z.object({
   name: z.string().trim().min(3),
   email: z.string().email(),
-  // password: z.string().trim().min(8),
   phoneNumber: z.optional(z.string()),
-  // roleId: z.optional(z.string()),
 })
+
+export type UserUpdateSchema = z.infer<typeof userUpdateSchema>

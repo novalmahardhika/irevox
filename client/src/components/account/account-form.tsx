@@ -11,11 +11,16 @@ import {
 } from '../ui/form'
 import { Input } from '../ui/input'
 import { z } from 'zod'
-import { userUpdateSchema } from '@/lib/schema'
+import { UserUpdateSchema, userUpdateSchema } from '@/lib/schema-zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '../ui/button'
+import { useMutation } from '@tanstack/react-query'
+import { useAuth } from '@/hooks/use-auth'
+import { toast } from 'sonner'
+import { URL } from '@/lib/url'
 
 export function AccountForm() {
+  const { user, token } = useAuth()
   const form = useForm<z.infer<typeof userUpdateSchema>>({
     resolver: zodResolver(userUpdateSchema),
     defaultValues: {
@@ -25,11 +30,39 @@ export function AccountForm() {
     },
   })
 
+  const mutation = useMutation({
+    mutationFn: async (payload: UserUpdateSchema) => {
+      const response = await fetch(`${URL}/users/${user?.id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        throw new Error('Update Failed')
+      }
+
+      const data = await response.json()
+
+      return data.data
+    },
+    onSuccess: () => {
+      toast.success('Updated successfully')
+    },
+    onError: (err) => {
+      toast.error(err.message)
+    },
+  })
+
   const onSubmit = (values: z.infer<typeof userUpdateSchema>) => {
-    console.log(values)
+    mutation.mutate(values)
   }
   return (
-    <Card className='bg-transparent border-gray-800 text-white border-none max-w-md'>
+    <Card className='max-w-md text-white bg-transparent border-gray-800 border-none '>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-2'>
           <FormField
@@ -73,7 +106,11 @@ export function AccountForm() {
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
-                  <Input placeholder='Password' {...field} className='input' />
+                  <Input
+                    placeholder='Phone Number'
+                    {...field}
+                    className='input'
+                  />
                 </FormControl>
                 <FormDescription>
                   Make sure your password is correct
@@ -83,7 +120,11 @@ export function AccountForm() {
             )}
           />
 
-          <Button type='submit' className='w-full'>
+          <Button
+            type='submit'
+            className='w-full'
+            disabled={mutation.isPending}
+          >
             Save
           </Button>
         </form>
