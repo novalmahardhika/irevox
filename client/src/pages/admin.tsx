@@ -1,4 +1,6 @@
+import AdminFormCreateUser from '@/components/admin/admin-form-create-user'
 import { AdminRowAction } from '@/components/admin/admin-row-action'
+
 import { Card } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import Title from '@/components/ui/title'
@@ -26,10 +28,14 @@ export default function Admin() {
 
   return (
     <section className='container'>
-      <Title
-        title='Display Admin'
-        description='This page contains your all account users.'
-      />
+      <div className='flex items-center justify-between w-full'>
+        <Title
+          title='Display Admin'
+          description='This page contains your all account users.'
+        />
+
+        <AdminFormCreateUser />
+      </div>
 
       <div className='grid gap-4 py-4 md:grid-cols-2 lg:grid-cols-3'>
         {data.map((user: User) => (

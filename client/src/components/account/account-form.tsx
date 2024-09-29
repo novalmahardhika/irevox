@@ -56,7 +56,7 @@ export function AccountForm() {
     onSuccess: () => {
       toast.success('Updated successfully')
 
-      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: ['user-details'] })
     },
     onError: (err) => {
       toast.error(err.message)
@@ -73,6 +73,7 @@ export function AccountForm() {
         name: user.name || '',
         email: user.email || '',
         phoneNumber: user.phoneNumber || '',
+        password: undefined,
       })
     }
   }, [user, form])
@@ -131,9 +132,31 @@ export function AccountForm() {
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder={user?.phoneNumber}
+                    placeholder={user?.phoneNumber || 'Phone Number'}
                     {...field}
                     className='input'
+                  />
+                </FormControl>
+                <FormDescription>
+                  Make sure your password is correct
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='password'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={'Password'}
+                    {...field}
+                    className='input'
+                    type='password'
                   />
                 </FormControl>
                 <FormDescription>

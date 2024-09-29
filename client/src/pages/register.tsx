@@ -62,6 +62,12 @@ export function Register() {
 
   const onSubmit = (values: z.infer<typeof registerSchema>) => {
     mutation.mutate(values)
+
+    form.reset({
+      name: '',
+      email: '',
+      password: undefined,
+    })
   }
 
   if (token) {

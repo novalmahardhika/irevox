@@ -27,6 +27,7 @@ export const userUpdateSchema = z.object({
   name: z.string().trim().min(3),
   email: z.string().email(),
   phoneNumber: z.string().optional(),
+  password: z.string().optional(),
 })
 
 export type UserUpdateSchema = z.infer<typeof userUpdateSchema>
@@ -36,7 +37,17 @@ export const userUpdateAdminSchema = z.object({
   email: z.string().email(),
   password: z.string().trim().optional(),
   phoneNumber: z.string().optional(),
-  roleId: z.string(),
+  roleId: z.string().uuid(),
 })
 
 export type UserUpdateAdminSchema = z.infer<typeof userUpdateAdminSchema>
+
+export const userCreateSchema = z.object({
+  name: z.string().trim().min(3),
+  email: z.string().email(),
+  password: z.string().trim().min(8),
+  phoneNumber: z.optional(z.string()),
+  roleId: z.string().uuid(),
+})
+
+export type UserCreateSchema = z.infer<typeof userCreateSchema>

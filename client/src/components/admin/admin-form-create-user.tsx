@@ -1,4 +1,3 @@
-import { useModal } from '@/hooks/use-modal'
 import { Modal } from '../modal/modal'
 import {
   Form,
@@ -10,12 +9,6 @@ import {
   FormMessage,
 } from '../ui/form'
 import { Input } from '../ui/input'
-import { useForm } from 'react-hook-form'
-import { UserUpdateAdminSchema, userUpdateAdminSchema } from '@/lib/schema-zod'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Button } from '../ui/button'
-import { useRole } from '@/hooks/use-role'
 import {
   Select,
   SelectContent,
@@ -23,24 +16,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import { Role, User } from '@/lib/type'
 import { Spinner } from '../ui/spinner'
-import { useAuth } from '@/hooks/use-auth'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { URL } from '@/lib/url'
+import { Button } from '../ui/button'
+import { useRole } from '@/hooks/use-role'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { UserCreateSchema, userCreateSchema } from '@/lib/schema-zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Role } from '@/lib/type'
+import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { useUserDetail } from '@/hooks/user-user-detail'
-import { useEffect } from 'react'
+import queryClient from '@/hooks/queryClient'
+import { useAuth } from '@/hooks/use-auth'
+import { URL } from '@/lib/url'
 
-export function AdminFormUpdateUser({ user: userSelected }: { user: User }) {
-  const [isOpen, onCloseModal, onOpenModal] = useModal()
+export default function AdminFormCreateUser() {
   const { data, isLoading } = useRole()
   const { token } = useAuth()
-  const { data: selectedUser } = useUserDetail(userSelected.id)
-  const queryClient = useQueryClient()
 
-  const form = useForm<z.infer<typeof userUpdateAdminSchema>>({
-    resolver: zodResolver(userUpdateAdminSchema),
+  const form = useForm<z.infer<typeof userCreateSchema>>({
+    resolver: zodResolver(userCreateSchema),
     defaultValues: {
       name: undefined,
       email: undefined,
@@ -51,9 +46,9 @@ export function AdminFormUpdateUser({ user: userSelected }: { user: User }) {
   })
 
   const mutation = useMutation({
-    mutationFn: async (payload: UserUpdateAdminSchema) => {
-      const response = await fetch(`${URL}/users/${userSelected?.id}/admin`, {
-        method: 'PUT',
+    mutationFn: async (payload: UserCreateSchema) => {
+      const response = await fetch(`${URL}/users`, {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -62,7 +57,7 @@ export function AdminFormUpdateUser({ user: userSelected }: { user: User }) {
       })
 
       if (!response.ok) {
-        throw new Error('Updated user fail')
+        throw new Error('Created user fail')
       }
 
       const data = await response.json()
@@ -70,7 +65,7 @@ export function AdminFormUpdateUser({ user: userSelected }: { user: User }) {
       return data.data
     },
     onSuccess: () => {
-      toast.success('Updated successfully')
+      toast.success('Created successfully')
 
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },
@@ -79,32 +74,26 @@ export function AdminFormUpdateUser({ user: userSelected }: { user: User }) {
     },
   })
 
-  const onSubmit = (values: z.infer<typeof userUpdateAdminSchema>) => {
+  const onSubmit = (values: z.infer<typeof userCreateSchema>) => {
     mutation.mutate(values)
-  }
 
-  useEffect(() => {
-    if (selectedUser) {
-      form.reset({
-        name: selectedUser.name || '',
-        email: selectedUser.email || '',
-        phoneNumber: selectedUser.phoneNumber || '',
-        roleId: selectedUser.role.id || '',
-      })
-    }
-  }, [selectedUser, form])
+    form.reset({
+      email: '',
+      name: '',
+      password: '',
+      phoneNumber: '',
+      roleId: '',
+    })
+  }
 
   return (
     <Modal
-      title='Update User'
-      triggerButton='Update'
-      description='Update data users any roles'
-      onOpenChange={onOpenModal}
-      onCloseModal={onCloseModal}
-      open={isOpen}
+      title='Create User'
+      triggerButton='Create User'
+      description='You can create user with any roles'
       typeBtnAction='submit'
       btnAction='Save'
-      classNameTriggerBtn='w-full'
+      classNameTriggerBtn='bg-primary'
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-1'>

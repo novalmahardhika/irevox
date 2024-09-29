@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
 
 import { ReactNode } from 'react'
 
@@ -17,10 +18,11 @@ type ModalProps = {
   description?: string
   action?: (params: unknown) => void
   btnAction?: string
-  open: boolean
-  onCloseModal: () => void
-  onOpenChange: () => void
+  open?: boolean
+  onCloseModal?: () => void
+  onOpenChange?: () => void
   typeBtnAction?: 'button' | 'submit'
+  classNameTriggerBtn?: string
 }
 
 export function Modal({
@@ -30,13 +32,17 @@ export function Modal({
   description,
   onOpenChange,
   open,
+  classNameTriggerBtn,
 }: ModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild className='flex justify-start p-0 h-9'>
         <Button
           variant='outline'
-          className='w-full p-0 px-2 bg-transparent border-transparent'
+          className={cn(
+            'p-0 px-2 bg-transparent border-transparent',
+            classNameTriggerBtn
+          )}
         >
           {triggerButton}
         </Button>
