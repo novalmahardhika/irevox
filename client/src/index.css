@@ -58,6 +58,7 @@
     --chart-5: 340 75% 55%;
   }
 }
+
 @layer base {
   * {
     @apply border-border;
@@ -74,9 +75,9 @@ body {
 }
 
 .container {
-  @apply max-w-6xl mx-auto px-4;
+  @apply max-w-6xl px-4 mx-auto;
 }
 
 .input {
-  @apply bg-transparent border-gray-800;
+  @apply bg-transparent border-gray-800 autofill:bg-black;
 }

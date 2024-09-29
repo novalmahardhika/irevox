@@ -1,4 +1,4 @@
-import { User } from '@/lib/type'
+import { UserDetail } from '@/lib/type'
 import { URL } from '@/lib/url'
 import { createContext, useState, useEffect, ReactNode } from 'react'
 
@@ -6,13 +6,13 @@ export type AuthContextType = {
   token: string | null
   login: (newToken: string) => void
   logout: () => void
-  user: User | null
+  user: UserDetail | null
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserDetail | null>(null)
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem('token') || null
   })

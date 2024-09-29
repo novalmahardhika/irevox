@@ -14,13 +14,16 @@ import { z } from 'zod'
 import { UserUpdateSchema, userUpdateSchema } from '@/lib/schema-zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '../ui/button'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/use-auth'
 import { toast } from 'sonner'
 import { URL } from '@/lib/url'
+import { useEffect } from 'react'
 
 export function AccountForm() {
   const { user, token } = useAuth()
+  const queryClient = useQueryClient()
+
   const form = useForm<z.infer<typeof userUpdateSchema>>({
     resolver: zodResolver(userUpdateSchema),
     defaultValues: {
@@ -52,6 +55,8 @@ export function AccountForm() {
     },
     onSuccess: () => {
       toast.success('Updated successfully')
+
+      queryClient.invalidateQueries({ queryKey: ['users'] })
     },
     onError: (err) => {
       toast.error(err.message)
@@ -61,6 +66,17 @@ export function AccountForm() {
   const onSubmit = (values: z.infer<typeof userUpdateSchema>) => {
     mutation.mutate(values)
   }
+
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name || '',
+        email: user.email || '',
+        phoneNumber: user.phoneNumber || '',
+      })
+    }
+  }, [user, form])
+
   return (
     <Card className='max-w-md text-white bg-transparent border-gray-800 border-none '>
       <Form {...form}>
@@ -72,7 +88,11 @@ export function AccountForm() {
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder='Name' {...field} className='input' />
+                  <Input
+                    placeholder={user?.name}
+                    {...field}
+                    className='input'
+                  />
                 </FormControl>
                 <FormDescription>
                   Make sure your name is correct
@@ -89,7 +109,11 @@ export function AccountForm() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder='Email' {...field} className='input' />
+                  <Input
+                    placeholder={user?.email}
+                    {...field}
+                    className='input'
+                  />
                 </FormControl>
                 <FormDescription>
                   Make sure your email is correct
@@ -107,7 +131,7 @@ export function AccountForm() {
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder='Phone Number'
+                    placeholder={user?.phoneNumber}
                     {...field}
                     className='input'
                   />
