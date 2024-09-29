@@ -1,4 +1,7 @@
-import { PayloadUserType } from '../middlewares/validations/user'
+import {
+  PayloadUpdateUserType,
+  PayloadUserType,
+} from '../middlewares/validations/user'
 import * as userRepository from '../repositories/user'
 import { ApplicationError } from '../utils/error'
 
@@ -44,9 +47,21 @@ export async function createUser(payload: PayloadUserType) {
   }
 }
 
-export async function updateUser(id: string, payload: PayloadUserType) {
+export async function updateUser(id: string, payload: PayloadUpdateUserType) {
   try {
     const user = await userRepository.updateUser(id, payload)
+
+    return user
+  } catch (error) {
+    console.log(error)
+
+    throw new ApplicationError('Internal server error', 500)
+  }
+}
+
+export async function updateUserAdmin(id: string, payload: PayloadUserType) {
+  try {
+    const user = await userRepository.updateUserByAdmin(id, payload)
 
     return user
   } catch (error) {

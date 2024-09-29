@@ -7,6 +7,8 @@ import * as commonValidation from '../middlewares/validations/common'
 
 const router = Router()
 
+router.get('/me', authMiddleware.authorize, userController.getUserByLogin)
+
 router.get(
   '/',
   authMiddleware.authorize,
@@ -34,12 +36,22 @@ router.post(
 router.put(
   '/:id',
   authMiddleware.authorize,
-  authMiddleware.isAdmin,
   commonValidation.checkUUID,
+  userMiddleware.checkIsUser,
   userValidation.checkUpdateUserPayload,
   userMiddleware.checkUserExist,
-  userMiddleware.checkRoleId,
   userController.updateUser
+)
+
+router.put(
+  '/:id/admin',
+  authMiddleware.authorize,
+  authMiddleware.isAdmin,
+  commonValidation.checkUUID,
+  userValidation.checkUpdateUserByAdminPayload,
+  userMiddleware.checkUserExist,
+  userMiddleware.checkRoleId,
+  userController.updateUserAdmin
 )
 
 router.delete(

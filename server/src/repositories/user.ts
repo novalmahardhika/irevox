@@ -1,5 +1,8 @@
 import prisma from '../../prisma/db'
-import { PayloadUserType } from '../middlewares/validations/user'
+import {
+  PayloadUpdateUserType,
+  PayloadUserType,
+} from '../middlewares/validations/user'
 
 export function getListUser() {
   return prisma.user.findMany()
@@ -60,7 +63,20 @@ export function createUser(payload: PayloadUserType) {
   })
 }
 
-export function updateUser(id: string, payload: PayloadUserType) {
+export function updateUser(id: string, payload: PayloadUpdateUserType) {
+  return prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      name: payload.name,
+      email: payload.email,
+      phoneNumber: payload.phoneNumber,
+    },
+  })
+}
+
+export function updateUserByAdmin(id: string, payload: PayloadUserType) {
   return prisma.user.update({
     where: {
       id,

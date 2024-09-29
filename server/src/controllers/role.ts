@@ -6,7 +6,7 @@ export async function getListRole(req: Request, res: Response) {
   try {
     const data = await roleService.getListRole()
 
-    res.status(500).json({ message: 'Get list role successfully', data })
+    res.status(200).json({ message: 'Get list role successfully', data })
   } catch (error) {
     if (error instanceof ApplicationError) {
       res.status(error.statusCode).json({ message: error.message })

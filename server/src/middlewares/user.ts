@@ -3,6 +3,23 @@ import * as userService from '../services/user'
 import * as roleService from '../services/role'
 import { ApplicationError } from '../utils/error'
 import { PayloadUserType } from './validations/user'
+import { UserWithRole } from './auth'
+
+export async function checkIsUser(
+  req: Request<{ id: string }>,
+  res: Response<unknown, { auth: UserWithRole }>,
+  next: NextFunction
+) {
+  const { id } = req.params
+  const { id: userId } = res.locals.auth
+
+  if (id !== userId) {
+    res.status(409).json({ message: 'You are cannot access this route' })
+    return
+  }
+
+  next()
+}
 
 export async function checkUserExist(
   req: Request<{ id: string }>,
@@ -39,6 +56,8 @@ export async function checkRoleId(
   next: NextFunction
 ) {
   const { roleId } = req.body
+
+  if (!roleId) return next()
 
   try {
     const role = await roleService.getRoleById(roleId)

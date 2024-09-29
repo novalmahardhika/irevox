@@ -29,13 +29,39 @@ export function checkUserPayload(
   next()
 }
 
-const userUpdateSchema = z.object({
-  roleId: z.string().uuid(),
+const userUpdateByAdminSchema = z.object({
+  roleId: z.string().uuid().optional(),
   name: z.string(),
   email: z.string().email(),
   password: z.string().min(8).optional(),
   phoneNumber: z.string().optional(),
 })
+
+export function checkUpdateUserByAdminPayload(
+  req: Request<unknown, unknown, PayloadUserType>,
+  res: Response,
+  next: NextFunction
+) {
+  const body = req.body
+
+  const validate = userUpdateByAdminSchema.safeParse(body)
+
+  if (!validate.success) {
+    res.status(400).json({ message: formatZodError(validate.error) })
+    return
+  }
+
+  next()
+}
+
+const userUpdateSchema = z.object({
+  phoneNumber: z.string().optional(),
+  name: z.string(),
+  email: z.string().email(),
+  password: z.string().optional(),
+})
+
+export type PayloadUpdateUserType = z.infer<typeof userUpdateSchema>
 
 export function checkUpdateUserPayload(
   req: Request<unknown, unknown, PayloadUserType>,

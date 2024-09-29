@@ -22,6 +22,27 @@ export async function getListUser(req: Request, res: Response) {
   }
 }
 
+export async function getUserByLogin(
+  req: Request,
+  res: Response<unknown, { auth: UserWithRole }>
+) {
+  const { id } = res.locals.auth
+
+  try {
+    const data = await userService.getUserById(id)
+
+    res.status(200).json({ message: 'Get list user successfully', data })
+  } catch (error) {
+    if (error instanceof ApplicationError) {
+      res.status(error.statusCode).json({ message: error.message })
+      return
+    }
+
+    res.status(500).json({ message: 'Internal server error' })
+    return
+  }
+}
+
 export async function getUserById(req: Request<{ id: string }>, res: Response) {
   const { id } = req.params
   try {
@@ -106,6 +127,47 @@ export async function updateUser(
     }
 
     const data = await userService.updateUser(id, payload)
+
+    res.status(200).json({ message: 'Updated user successfully', data })
+  } catch (error) {
+    if (error instanceof ApplicationError) {
+      res.status(error.statusCode).json({ message: error.message })
+      return
+    }
+
+    res.status(500).json({ message: 'Internal server error' })
+    return
+  }
+}
+
+export async function updateUserAdmin(
+  req: Request<{ id: string }, unknown, PayloadUserType>,
+  res: Response<unknown, { user: User; auth: UserWithRole }>
+) {
+  const { id } = req.params
+  const body = req.body
+
+  try {
+    const emailExist = await userService.getUserByEmail(body.email)
+
+    if (emailExist && emailExist.id !== id) {
+      res.status(409).json({ message: 'Email already exist' })
+      return
+    }
+
+    let payload = {
+      ...body,
+    }
+
+    if (body.password) {
+      const encryptedPassword = await authService.generatePassword(
+        body.password
+      )
+
+      payload = { ...body, password: encryptedPassword }
+    }
+
+    const data = await userService.updateUserAdmin(id, payload)
 
     res.status(200).json({ message: 'Updated user successfully', data })
   } catch (error) {
