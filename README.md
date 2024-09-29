@@ -75,3 +75,16 @@ npm  run db:reset
 ## Demo Link
 
 https://drive.google.com/file/d/1lny4Toh6M8k0gVwXRrx7z3dgn2LNKSpy/view?usp=sharing
+
+##
+
+```bash
+URl
+Client : http://localhost:5173
+Server : http://localhost:4000
+
+ADMIN
+email : admin@admin.com
+password : admin12345
+
+```
